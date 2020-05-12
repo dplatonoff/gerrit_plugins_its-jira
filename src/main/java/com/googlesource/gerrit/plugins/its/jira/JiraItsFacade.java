@@ -80,6 +80,20 @@ public class JiraItsFacade implements ItsFacade {
   }
 
   @Override
+  public void addIssueLink(String issueKey, URL url, String description)
+      throws IOException {
+    String externalizedUrl = url.toExternalForm();
+
+    execute(
+        () -> {
+          log.debug("Adding link {} to issue {}", externalizedUrl, issueKey);
+          jiraClient.addLink(issueKey, externalizedUrl, description);
+          log.debug("Added comment {} to issue {}", externalizedUrl, issueKey);
+          return issueKey;
+        });
+  }
+
+  @Override
   public void performAction(String issueKey, String actionName) throws IOException {
 
     execute(

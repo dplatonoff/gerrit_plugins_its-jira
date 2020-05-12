@@ -25,6 +25,7 @@ import com.google.inject.Inject;
 import com.googlesource.gerrit.plugins.its.base.its.InvalidTransitionException;
 import com.googlesource.gerrit.plugins.its.jira.restapi.JiraComment;
 import com.googlesource.gerrit.plugins.its.jira.restapi.JiraIssue;
+import com.googlesource.gerrit.plugins.its.jira.restapi.JiraLink;
 import com.googlesource.gerrit.plugins.its.jira.restapi.JiraProject;
 import com.googlesource.gerrit.plugins.its.jira.restapi.JiraRestApi;
 import com.googlesource.gerrit.plugins.its.jira.restapi.JiraRestApiProvider;
@@ -108,6 +109,26 @@ public class JiraClient {
           .getIssue()
           .doPost(issueKey + "/comment", gson.toJson(new JiraComment(comment)), HTTP_CREATED);
       log.debug("Comment added to issue {}", issueKey);
+    } else {
+      log.error("Issue {} does not exist or no access permission", issueKey);
+    }
+  }
+
+  /**
+   * Attaches an external link to a Jira issue.
+   *
+   * @param issueKey Jira issue key
+   * @param url code review URL
+   * @param title link title
+   * @throws IOException
+   */
+  public void addLink(String issueKey, String url, String title) throws IOException {
+    if (issueExists(issueKey)) {
+      log.debug("Trying to add link for issue {}", issueKey);
+      apiBuilder
+          .getIssue()
+          .doPost(issueKey + "/remotelink", gson.toJson(new JiraLink(url, title)), HTTP_OK, HTTP_CREATED);
+      log.debug("Link added to issue {}", issueKey);
     } else {
       log.error("Issue {} does not exist or no access permission", issueKey);
     }
